@@ -1,0 +1,63 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: BileMo API
+            description: vente de smartphones hauts de gamme en B2B
+            version: 1.0.0
+        paths:
+            /api/login:
+                post:
+                    consumes:
+                        - application/json
+                    parameters:
+                        - in: body
+                          name: customer
+                          description: veuillez remplir les données de client
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  login:
+                                      type: string
+                                  password:
+                                      type: string
+            /api/users:
+                post:
+                    parameters:
+                        - in: body
+                          name: user
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  firstname:
+                                      type: string
+                                  lastname:
+                                      type: string
+                                  mail:
+                                      type: string
+                                  password:
+                                      type: string
+            /api/users/{id}:
+                put:
+                    parameters:
+                        - in: body
+                          name: user
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  firstname:
+                                      type: string
+                                  lastname:
+                                      type: string
+                                  mail:
+                                      type: string
+                                  password:
+                                      type: string
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

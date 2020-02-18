@@ -1,0 +1,7 @@
+easy_admin:
+   site_name: BileMo
+   entities:
+       # List the entity class name you want to manage
+       - App\Entity\Phone
+       - App\Entity\User
+       - App\Entity\Customer
