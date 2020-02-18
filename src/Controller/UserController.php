@@ -28,12 +28,29 @@ class UserController extends AbstractController
     {
         $usersEntity = $repo->findByCustomer($this->getUser());
 
-        $usersJson = $serializer->serialize(
+        // $usersJson = $serializer->serialize(
+        //     $usersEntity,
+        //     "json",
+        //     [
+        //         "groups" => ["getAllUsers"]
+        //     ]
+        // );
+
+        $usersArray = $serializer->normalize(
             $usersEntity,
-            "json",
+            null,
             [
                 "groups" => ["getAllUsers"]
             ]
+        );
+
+        for ($i = 0 ; $i < count($usersArray) ; $i++) {
+            $usersArray[$i]["link"] = "/api/users/" . $usersArray[$i]["id"];
+        }
+
+        $usersJson = $serializer->encode(
+            $usersArray,
+            "json"
         );
 
         return new JsonResponse(

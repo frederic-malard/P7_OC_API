@@ -18,12 +18,29 @@ class PhoneController extends AbstractController
     {
         $phonesEntity = $repo->findAll();
         
-        $phonesJson = $serializer->serialize(
+        // $phonesJson = $serializer->serialize(
+        //     $phonesEntity,
+        //     "json",
+        //     [
+        //         "groups" => ["getAllPhones"]
+        //     ]
+        // );
+
+        $phonesArray = $serializer->normalize(
             $phonesEntity,
-            "json",
+            null,
             [
                 "groups" => ["getAllPhones"]
             ]
+        );
+
+        for ($i = 0 ; $i < count($phonesArray) ; $i++) {
+            $phonesArray[$i]["link"] = "/api/phones/" . $phonesArray[$i]["id"];
+        }
+
+        $phonesJson = $serializer->encode(
+            $phonesArray,
+            "json"
         );
 
         return new JsonResponse(
