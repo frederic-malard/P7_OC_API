@@ -4,10 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Phone;
 use App\Repository\PhoneRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class PhoneController extends AbstractController
 {
@@ -73,6 +78,98 @@ class PhoneController extends AbstractController
             200,
             [],
             true
+        );
+    }
+
+    /**
+     * @Route(
+     *      path="/api/phones",
+     *      name="post_phone",
+     *      methods={"POST"}
+     * )
+     * @param SerializerInterface $serializer
+     * @param Request $request
+     * @param EntityManagerInterface $manager
+     * @return void
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function postPhone(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder)
+    {
+        $phoneJson = $request->getContent();
+
+        $phoneEntity = $serializer->deserialize(
+            $phoneJson,
+            Phone::class,
+            "json"
+        );
+
+        $manager->persist($phoneEntity);
+        $manager->flush();
+
+        return new JsonResponse(
+            "téléphone ajouté",
+            Response::HTTP_CREATED,
+            [
+                "location" => "/api/phones/" . $phoneEntity->getId()
+            ],
+            true
+        );
+    }
+
+    /**
+     * @Route(
+     *      path="/api/phones/{id}",
+     *      name="put_phone",
+     *      methods={"PUT"}
+     * )
+     * @param Phone $phoneEntity
+     * @param EntityManagerInterface $manager
+     * @param SerializerInterface $serializer
+     * @param Request $request
+     * @return void
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function putPhone(Phone $phoneEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request)
+    {
+        $phoneJson = $request->getContent();
+        
+        $serializer->deserialize(
+            $phoneJson,
+            Phone::class,
+            "json",
+            [
+                'object_to_populate' => $phoneEntity
+            ]
+        );
+
+        $manager->persist($phoneEntity);
+        $manager->flush();
+
+        return new JsonResponse(
+            "Modification sauvées",
+            200
+        );
+    }
+
+    /**
+     * @Route(
+     *      path="api/phones/{id}",
+     *      name="delete_phone",
+     *      methods={"DELETE"}
+     * )
+     * @param Phone $phoneEntity
+     * @param EntityManagerInterface $manager
+     * @return void
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function deletePhone(Phone $phoneEntity, EntityManagerInterface $manager)
+    {
+        $manager->remove($phoneEntity);
+        $manager->flush();
+
+        return new JsonResponse(
+            "utilisateur supprimé.",
+            200
         );
     }
 }

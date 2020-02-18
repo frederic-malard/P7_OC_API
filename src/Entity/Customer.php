@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -19,16 +20,28 @@ class Customer implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({
+     *      "getAllCustomers",
+     *      "getOneCustomer"
+     * })
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({
+     *      "getAllCustomers",
+     *      "getOneCustomer"
+     * })
      */
     private $login;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({
+     *      "getAllCustomers",
+     *      "getOneCustomer"
+     * })
      */
     private $password;
 
@@ -39,8 +52,17 @@ class Customer implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({
+     *      "getAllCustomers",
+     *      "getOneCustomer"
+     * })
      */
     private $society;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $roles;
 
     // /**
     //  * @ ORM \ PrePersist
@@ -132,7 +154,10 @@ class Customer implements UserInterface
 
     public function getRoles()
     {
-        return ['ROLE_USER'];
+        if ($this->roles == "admin")
+            return ['ROLE_CUSTOMER', 'ROLE_ADMIN'];
+        else
+            return ['ROLE_CUSTOMER'];
     }
 
     public function getSalt()
@@ -146,4 +171,11 @@ class Customer implements UserInterface
     }
 
     public function eraseCredentials(){}
+
+    public function setRoles($roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
 }

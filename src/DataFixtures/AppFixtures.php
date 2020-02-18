@@ -17,7 +17,7 @@ class AppFixtures extends Fixture
         $this->encoder = $encoder;
     }
 
-    public function load(ObjectManager $manager)
+    /*public function load(ObjectManager $manager)
     {
         // $bigPhone = new Phone();
 
@@ -65,6 +65,26 @@ class AppFixtures extends Fixture
 
         $manager->persist($customer);
         $manager->persist($customer2);
+
+        $manager->flush();
+    }*/
+
+    public function load(ObjectManager $manager)
+    {
+        $admin = new Customer();
+
+        $admin
+            ->setLogin('admin')
+            ->setPassword(
+                $this->encoder->encodePassword(
+                    $admin,
+                    'admin'
+                )
+            )
+            ->setSociety('admin')
+        ;
+
+        $manager->persist($admin);
 
         $manager->flush();
     }
