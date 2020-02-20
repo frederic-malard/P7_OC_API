@@ -7,6 +7,9 @@ use Swagger\Annotations as SWG;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +30,6 @@ class UserController extends AbstractController
     public function getAllUsers(UserRepository $repo, SerializerInterface $serializer)
     {
         $usersEntity = $repo->findByCustomer($this->getUser());
-
-        // $usersJson = $serializer->serialize(
-        //     $usersEntity,
-        //     "json",
-        //     [
-        //         "groups" => ["getAllUsers"]
-        //     ]
-        // );
 
         $usersArray = $serializer->normalize(
             $usersEntity,
@@ -153,9 +148,14 @@ class UserController extends AbstractController
      * @param Request $request
      * @return void
      */
-    public function putUser(User $userEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request)
+    public function putUser(User $userEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder)
     {
         $userJson = $request->getContent();
+
+        $changedPassword = false;
+
+        if (isset($customerJson['password']) && $customerJson['password'] != null  && $customerJson['password'] != "")
+            $changedPassword = true;
         
         $serializer->deserialize(
             $userJson,
@@ -165,6 +165,13 @@ class UserController extends AbstractController
                 'object_to_populate' => $userEntity
             ]
         );
+
+        $userEntity
+            ->setPassword($encoder->encodePassword(
+                $userEntity,
+                $userEntity->getPassword()
+            ))
+        ;
 
         $manager->persist($userEntity);
         $manager->flush();

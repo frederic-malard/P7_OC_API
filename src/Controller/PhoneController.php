@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Phone;
 use App\Repository\PhoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,33 +21,34 @@ class PhoneController extends AbstractController
     /**
      * @Route("/api/phones", name="get_all_phones", methods={"GET"})
      */
-    public function getAllPhones(PhoneRepository $repo, SerializerInterface $serializer)
+    public function getAllPhones(PhoneRepository $repo, SerializerInterface $serializer, CacheInterface $cache)
     {
-        $phonesEntity = $repo->findAll();
-        
-        // $phonesJson = $serializer->serialize(
-        //     $phonesEntity,
-        //     "json",
-        //     [
-        //         "groups" => ["getAllPhones"]
-        //     ]
-        // );
+        $phonesJson = $cache->get(
+            "phonesJsonCache",
+            function (ItemInterface $item) use ($repo, $serializer) {
+                $item->expiresAfter(30);
+                
+                $phonesEntity = $repo->findAll();
+            
+                $phonesArray = $serializer->normalize(
+                    $phonesEntity,
+                    null,
+                    [
+                        "groups" => ["getAllPhones"]
+                    ]
+                );
+            
+                for ($i = 0 ; $i < count($phonesArray) ; $i++) {
+                    $phonesArray[$i]["link"] = "/api/phones/" . $phonesArray[$i]["id"];
+                }
+            
+                $phonesJson = $serializer->encode(
+                    $phonesArray,
+                    "json"
+                );
 
-        $phonesArray = $serializer->normalize(
-            $phonesEntity,
-            null,
-            [
-                "groups" => ["getAllPhones"]
-            ]
-        );
-
-        for ($i = 0 ; $i < count($phonesArray) ; $i++) {
-            $phonesArray[$i]["link"] = "/api/phones/" . $phonesArray[$i]["id"];
-        }
-
-        $phonesJson = $serializer->encode(
-            $phonesArray,
-            "json"
+                return $phonesJson;
+            }
         );
 
         return new JsonResponse(

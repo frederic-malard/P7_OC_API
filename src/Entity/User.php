@@ -5,6 +5,7 @@ namespace App\Entity;
 use Swagger\Annotations as SWG;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -48,7 +49,11 @@ class User implements UserInterface
     private $lastname;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
+     * @Assert\NotBlank()
+     * @Assert\Email(
+     *      message="{{ value }} n'est pas un email valide."
+     * )
      * @Groups({
      *      "getAllUsers",
      *      "getOneUser",
@@ -66,7 +71,8 @@ class User implements UserInterface
     private $customer;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
+     * @Assert\NotBlank()
      * @Groups({
      *      "getAllUsers",
      *      "getOneUser",

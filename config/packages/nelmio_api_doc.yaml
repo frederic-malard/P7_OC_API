@@ -7,6 +7,7 @@ nelmio_api_doc:
         paths:
             /api/login:
                 post:
+                    #summary: use this route to log
                     consumes:
                         - application/json
                     parameters:
@@ -24,6 +25,7 @@ nelmio_api_doc:
                                       type: string
             /api/users:
                 post:
+                    #summary: create a user (customers only)
                     parameters:
                         - in: body
                           name: user
@@ -40,8 +42,12 @@ nelmio_api_doc:
                                       type: string
                                   password:
                                       type: string
+            #/api/users:
+                #get:
+                    #summary: customer's users list (customers only)
             /api/users/{id}:
                 put:
+                    #summary: edit a user (customers only)
                     parameters:
                         - in: body
                           name: user
@@ -50,13 +56,125 @@ nelmio_api_doc:
                               required:
                                   - login
                               properties:
-                                  firstname:
-                                      type: string
-                                  lastname:
-                                      type: string
-                                  mail:
+                                  login:
                                       type: string
                                   password:
+                                      type: string
+            /api/customers:
+                post:
+                    #summary: post new customer (admin only)
+                    parameters:
+                        - in: body
+                          name: customers
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  login:
+                                      type: string
+                                  password:
+                                      type: string
+                                  society:
+                                      type: string
+            /api/customers/{id}:
+                put:
+                    #summary: edit a customer (admin only)
+                    parameters:
+                        - in: body
+                          name: customers
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  login:
+                                      type: string
+                                  password:
+                                      type: string
+                                  society:
+                                      type: string
+            /api/phones:
+                post:
+                    #summary: post new phone (admin only)
+                    parameters:
+                        - in: body
+                          name: user
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  price:
+                                      type: double
+                                  DAS:
+                                      type: double
+                                  model:
+                                      type: string
+                                  releaseDate:
+                                      type: DateTime
+                                  screenSize:
+                                      type: double
+                                  connexionType:
+                                      type: string
+                                  width:
+                                      type: double
+                                  height:
+                                      type: double
+                                  thickness:
+                                      type: double
+                                  weight:
+                                      type: double
+                                  pixelsX:
+                                      type: integer
+                                  pixelsY:
+                                      type: integer
+                                  cameraSpecifications:
+                                      type: string
+                                  battery:
+                                      type: double
+                                  comments:
+                                      type: string
+            /api/phones/{id}:
+                put:
+                    #summary: edit a phone (admin only)
+                    parameters:
+                        - in: body
+                          name: user
+                          schema:
+                              type: object
+                              required:
+                                  - login
+                              properties:
+                                  price:
+                                      type: double
+                                  DAS:
+                                      type: double
+                                  model:
+                                      type: string
+                                  releaseDate:
+                                      type: DateTime
+                                  screenSize:
+                                      type: double
+                                  connexionType:
+                                      type: string
+                                  width:
+                                      type: double
+                                  height:
+                                      type: double
+                                  thickness:
+                                      type: double
+                                  weight:
+                                      type: double
+                                  pixelsX:
+                                      type: integer
+                                  pixelsY:
+                                      type: integer
+                                  cameraSpecifications:
+                                      type: string
+                                  battery:
+                                      type: double
+                                  comments:
                                       type: string
     areas: # to filter documented areas
         path_patterns:

@@ -144,9 +144,14 @@ class CustomerController extends AbstractController
      * @return void
      * @IsGranted("ROLE_ADMIN")
      */
-    public function putCustomer(Customer $customerEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request)
+    public function putCustomer(Customer $customerEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder)
     {
         $customerJson = $request->getContent();
+
+        $changedPassword = false;
+
+        if (isset($customerJson['password']))
+            $changedPassword = true;
         
         $serializer->deserialize(
             $customerJson,
@@ -156,6 +161,16 @@ class CustomerController extends AbstractController
                 'object_to_populate' => $customerEntity
             ]
         );
+
+        if ($changedPassword)
+        {
+            $customerEntity
+                ->setPassword($encoder->encodePassword(
+                    $customerEntity,
+                    $customerEntity->getPassword()
+                ))
+            ;
+        }
 
         $manager->persist($customerEntity);
         $manager->flush();
