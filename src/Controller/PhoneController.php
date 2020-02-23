@@ -96,7 +96,7 @@ class PhoneController extends AbstractController
      * @return void
      * @IsGranted("ROLE_ADMIN")
      */
-    public function postPhone(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder)
+    public function postPhone(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager)
     {
         $phoneJson = $request->getContent();
 
