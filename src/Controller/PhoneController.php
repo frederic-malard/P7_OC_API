@@ -110,7 +110,7 @@ class PhoneController extends AbstractController
         $manager->flush();
 
         return new JsonResponse(
-            "téléphone ajouté",
+            "/api/phones/" . $phoneEntity->getId(),
             Response::HTTP_CREATED,
             [
                 "location" => "/api/phones/" . $phoneEntity->getId()

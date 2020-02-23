@@ -122,7 +122,7 @@ class CustomerController extends AbstractController
         $manager->flush();
 
         return new JsonResponse(
-            "client ajouté",
+            "/api/customers/" . $customerEntity->getId(),
             Response::HTTP_CREATED,
             [
                 "location" => "/api/customers/" . $customerEntity->getId()

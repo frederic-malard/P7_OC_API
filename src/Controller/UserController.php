@@ -127,7 +127,7 @@ class UserController extends AbstractController
         $manager->flush();
 
         return new JsonResponse(
-            "utilisateur ajouté",
+            "/api/users/" . $userEntity->getId(),
             Response::HTTP_CREATED,
             [
                 "location" => "/api/users/" . $userEntity->getId()
