@@ -94,29 +94,47 @@ class PhoneController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $manager
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function postPhone(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager)
     {
-        $phoneJson = $request->getContent();
+        if($this->isGranted("ROLE_ADMIN"))
+        {
+            $phoneJson = $request->getContent();
 
-        $phoneEntity = $serializer->deserialize(
-            $phoneJson,
-            Phone::class,
-            "json"
-        );
+            $phoneEntity = $serializer->deserialize(
+                $phoneJson,
+                Phone::class,
+                "json"
+            );
 
-        $manager->persist($phoneEntity);
-        $manager->flush();
+            $manager->persist($phoneEntity);
+            $manager->flush();
 
-        return new JsonResponse(
-            "/api/phones/" . $phoneEntity->getId(),
-            Response::HTTP_CREATED,
-            [
-                "location" => "/api/phones/" . $phoneEntity->getId()
-            ],
-            true
-        );
+            $responseArray = ["link" => "/api/phones/" . $phoneEntity->getId()];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
+            return new JsonResponse(
+                $responseJson,
+                Response::HTTP_CREATED,
+                [
+                    "location" => "/api/phones/" . $phoneEntity->getId()
+                ],
+                true
+            );
+        }
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 
     /**
@@ -130,28 +148,46 @@ class PhoneController extends AbstractController
      * @param SerializerInterface $serializer
      * @param Request $request
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function putPhone(Phone $phoneEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request)
     {
-        $phoneJson = $request->getContent();
-        
-        $serializer->deserialize(
-            $phoneJson,
-            Phone::class,
-            "json",
-            [
-                'object_to_populate' => $phoneEntity
-            ]
-        );
+        if($this->isGranted("ROLE_ADMIN"))
+        {
+            $phoneJson = $request->getContent();
+            
+            $serializer->deserialize(
+                $phoneJson,
+                Phone::class,
+                "json",
+                [
+                    'object_to_populate' => $phoneEntity
+                ]
+            );
 
-        $manager->persist($phoneEntity);
-        $manager->flush();
+            $manager->persist($phoneEntity);
+            $manager->flush();
 
-        return new JsonResponse(
-            "Modification sauvées",
-            200
-        );
+            $responseArray = ["link" => "/api/phones/" . $phoneEntity->getId()];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
+            return new JsonResponse(
+                $responseJson,
+                200
+            );
+        }
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 
     /**
@@ -163,16 +199,27 @@ class PhoneController extends AbstractController
      * @param Phone $phoneEntity
      * @param EntityManagerInterface $manager
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function deletePhone(Phone $phoneEntity, EntityManagerInterface $manager)
     {
-        $manager->remove($phoneEntity);
-        $manager->flush();
+        if($this->isGranted("ROLE_ADMIN"))
+        {
+            $manager->remove($phoneEntity);
+            $manager->flush();
 
-        return new JsonResponse(
-            "utilisateur supprimé.",
-            200
-        );
+            return new JsonResponse(
+                "téléphone supprimé.",
+                200
+            );
+        }
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 }

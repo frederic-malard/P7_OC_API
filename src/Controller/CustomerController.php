@@ -21,43 +21,54 @@ class CustomerController extends AbstractController
      * @param CustomerRepository $repo
      * @param SerializerInterface $serializer
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function getAllCustomers(CustomerRepository $repo, SerializerInterface $serializer)
     {
-        $customersEntity = $repo->findAll();
-
-        $customersJson = $serializer->serialize(
-            $customersEntity,
-            "json",
-            [
-                "groups" => ["getAllCustomers"]
-            ]
-        );
-
-        // $customersArray = $serializer->normalize(
-        //     $customersEntity,
-        //     null,
-        //     [
-        //         "groups" => ["getAllCustomers"]
-        //     ]
-        // );
-
-        // for ($i = 0 ; $i < count($customersArray) ; $i++) {
-        //     $customersArray[$i]["link"] = "/api/customers/" . $customersArray[$i]["id"];
-        // }
-
-        // $customersJson = $serializer->encode(
-        //     $customersArray,
-        //     "json"
-        // );
-
-        return new JsonResponse(
-            $customersJson,
-            200,
-            [],
-            true
-        );
+        if($this->isGranted("ROLE_ADMIN"))
+        {
+            $customersEntity = $repo->findAll();
+    
+            $customersJson = $serializer->serialize(
+                $customersEntity,
+                "json",
+                [
+                    "groups" => ["getAllCustomers"]
+                ]
+            );
+    
+            // $customersArray = $serializer->normalize(
+            //     $customersEntity,
+            //     null,
+            //     [
+            //         "groups" => ["getAllCustomers"]
+            //     ]
+            // );
+    
+            // for ($i = 0 ; $i < count($customersArray) ; $i++) {
+            //     $customersArray[$i]["link"] = "/api/customers/" . $customersArray[$i]["id"];
+            // }
+    
+            // $customersJson = $serializer->encode(
+            //     $customersArray,
+            //     "json"
+            // );
+    
+            return new JsonResponse(
+                $customersJson,
+                200,
+                [],
+                true
+            );
+        }
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 
     /**
@@ -69,24 +80,35 @@ class CustomerController extends AbstractController
     * @param Customer $customerEntity
     * @param SerializerInterface $serializer
     * @return void
-     * @IsGranted("ROLE_ADMIN")
     */
     public function getOneCustomer(Customer $customerEntity, SerializerInterface $serializer)
     {
-        $customerJson = $serializer->serialize(
-            $customerEntity,
-            "json",
-            [
-                "groups" => ["getOneCustomer"]
-            ]
-        );
+        if($this->isGranted("ROLE_ADMIN"))
+        {
+            $customerJson = $serializer->serialize(
+                $customerEntity,
+                "json",
+                [
+                    "groups" => ["getOneCustomer"]
+                ]
+            );
 
-        return new JsonResponse(
-            $customerJson,
-            200,
-            [],
-            true
-        );
+            return new JsonResponse(
+                $customerJson,
+                200,
+                [],
+                true
+            );
+        }
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 
     /**
@@ -99,36 +121,54 @@ class CustomerController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $manager
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function postCustomer(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder)
     {
-        $customerJson = $request->getContent();
+        if($this->isGranted("ROLE_ADMIN"))
+        {
+            $customerJson = $request->getContent();
 
-        $customerEntity = $serializer->deserialize(
-            $customerJson,
-            Customer::class,
-            "json"
-        );
+            $customerEntity = $serializer->deserialize(
+                $customerJson,
+                Customer::class,
+                "json"
+            );
 
-        $customerEntity
-            ->setPassword($encoder->encodePassword(
-                $customerEntity,
-                $customerEntity->getPassword()
-            ))
-        ;
+            $customerEntity
+                ->setPassword($encoder->encodePassword(
+                    $customerEntity,
+                    $customerEntity->getPassword()
+                ))
+            ;
 
-        $manager->persist($customerEntity);
-        $manager->flush();
+            $manager->persist($customerEntity);
+            $manager->flush();
 
-        return new JsonResponse(
-            "/api/customers/" . $customerEntity->getId(),
-            Response::HTTP_CREATED,
-            [
-                "location" => "/api/customers/" . $customerEntity->getId()
-            ],
-            true
-        );
+            $responseArray = ["link" => "/api/customers/" . $customerEntity->getId()];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
+            return new JsonResponse(
+                $responseJson,
+                Response::HTTP_CREATED,
+                [
+                    "location" => "/api/customers/" . $customerEntity->getId()
+                ],
+                true
+            );
+        }
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 
     /**
@@ -142,43 +182,61 @@ class CustomerController extends AbstractController
      * @param SerializerInterface $serializer
      * @param Request $request
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function putCustomer(Customer $customerEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder)
     {
-        $customerJson = $request->getContent();
-
-        $changedPassword = false;
-
-        if (isset($customerJson['password']))
-            $changedPassword = true;
-        
-        $serializer->deserialize(
-            $customerJson,
-            Customer::class,
-            "json",
-            [
-                'object_to_populate' => $customerEntity
-            ]
-        );
-
-        if ($changedPassword)
+        if($this->isGranted("ROLE_ADMIN"))
         {
-            $customerEntity
-                ->setPassword($encoder->encodePassword(
-                    $customerEntity,
-                    $customerEntity->getPassword()
-                ))
-            ;
+            $customerJson = $request->getContent();
+
+            $changedPassword = false;
+
+            if (isset($customerJson['password']))
+                $changedPassword = true;
+            
+            $serializer->deserialize(
+                $customerJson,
+                Customer::class,
+                "json",
+                [
+                    'object_to_populate' => $customerEntity
+                ]
+            );
+
+            if ($changedPassword)
+            {
+                $customerEntity
+                    ->setPassword($encoder->encodePassword(
+                        $customerEntity,
+                        $customerEntity->getPassword()
+                    ))
+                ;
+            }
+
+            $manager->persist($customerEntity);
+            $manager->flush();
+
+            $responseArray = ["link" => "/api/customers/" . $customerEntity->getId()];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
+            return new JsonResponse(
+                $responseJson,
+                200
+            );
         }
-
-        $manager->persist($customerEntity);
-        $manager->flush();
-
-        return new JsonResponse(
-            "Modification sauvées",
-            200
-        );
+        else
+        {
+            return new JsonResponse(
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
+            );
+        }
     }
 
     /**
@@ -190,25 +248,36 @@ class CustomerController extends AbstractController
      * @param Customer $customerEntity
      * @param EntityManagerInterface $manager
      * @return void
-     * @IsGranted("ROLE_ADMIN")
      */
     public function deleteCustomer(Customer $customerEntity, EntityManagerInterface $manager)
     {
-        if (count($customerEntity->getRoles()) > 1 && $customerEntity->getRoles()[1] == "ROLE_ADMIN")
+        if($this->isGranted("ROLE_ADMIN"))
         {
-            return new JsonResponse(
-                "Il s'agit d'un compte admin. Vous ne pouvez pas le supprimer.",
-                400
-            );
+            if (count($customerEntity->getRoles()) > 1 && $customerEntity->getRoles()[1] == "ROLE_ADMIN")
+            {
+                return new JsonResponse(
+                    "Il s'agit d'un compte admin. Vous ne pouvez pas le supprimer.",
+                    400
+                );
+            }
+            else
+            {
+                $manager->remove($customerEntity);
+                $manager->flush();
+        
+                return new JsonResponse(
+                    "client supprimé.",
+                    200
+                );
+            }
         }
         else
         {
-            $manager->remove($customerEntity);
-            $manager->flush();
-    
             return new JsonResponse(
-                "utilisateur supprimé.",
-                200
+                "Vous devez être admin pour envoyer cette requête",
+                200,
+                [],
+                true
             );
         }
     }

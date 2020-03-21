@@ -88,7 +88,9 @@ class UserController extends AbstractController
         else
         {
             return new JsonResponse(
-                "Cet utilisateur n'est pas un de vos clients.",
+                [
+                    "erreur" => "Cet utilisateur n'est pas un de vos clients."
+                ],
                 400
             );
         }
@@ -126,8 +128,15 @@ class UserController extends AbstractController
         $manager->persist($userEntity);
         $manager->flush();
 
+        $responseArray = ["link" => "/api/users/" . $userEntity->getId()];
+
+        $responseJson = $serializer->encode(
+            $responseArray,
+            "json"
+        );
+
         return new JsonResponse(
-            "/api/users/" . $userEntity->getId(),
+            $responseJson,
             Response::HTTP_CREATED,
             [
                 "location" => "/api/users/" . $userEntity->getId()
@@ -176,8 +185,15 @@ class UserController extends AbstractController
         $manager->persist($userEntity);
         $manager->flush();
 
+        $responseArray = ["link" => "/api/users/" . $userEntity->getId()];
+
+        $responseJson = $serializer->encode(
+            $responseArray,
+            "json"
+        );
+
         return new JsonResponse(
-            "Modification sauvées",
+            $responseJson,
             200
         );
     }
