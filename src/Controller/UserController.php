@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -129,7 +130,7 @@ class UserController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return void
      */
-    public function postUser(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder)
+    public function postUser(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
     {
         $userJson = $request->getContent();
 
@@ -146,6 +147,23 @@ class UserController extends AbstractController
                 $userEntity->getPassword()
             ))
         ;
+
+        $errorsEntities = $validator->validate($userEntity);
+
+        if (count($errorsEntities))
+        {
+            $errorsJson = $serializer->serialize(
+                $errorsEntities,
+                "json"
+            );
+
+            return new JsonResponse(
+                $errorsJson,
+                400,
+                [],
+                true
+            );
+        }
 
         $manager->persist($userEntity);
         $manager->flush();
@@ -179,7 +197,7 @@ class UserController extends AbstractController
      * @param Request $request
      * @return void
      */
-    public function putUser(User $userEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder)
+    public function putUser(User $userEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
     {
         $userJson = $request->getContent();
 
@@ -203,6 +221,23 @@ class UserController extends AbstractController
                 $userEntity->getPassword()
             ))
         ;
+
+        $errorsEntities = $validator->validate($userEntity);
+
+        if (count($errorsEntities))
+        {
+            $errorsJson = $serializer->serialize(
+                $errorsEntities,
+                "json"
+            );
+
+            return new JsonResponse(
+                $errorsJson,
+                400,
+                [],
+                true
+            );
+        }
 
         $manager->persist($userEntity);
         $manager->flush();

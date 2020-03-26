@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -95,7 +96,7 @@ class PhoneController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return void
      */
-    public function postPhone(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager)
+    public function postPhone(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, ValidatorInterface $validator)
     {
         if($this->isGranted("ROLE_ADMIN"))
         {
@@ -106,6 +107,23 @@ class PhoneController extends AbstractController
                 Phone::class,
                 "json"
             );
+
+            $errorsEntities = $validator->validate($phoneEntity);
+    
+            if (count($errorsEntities))
+            {
+                $errorsJson = $serializer->serialize(
+                    $errorsEntities,
+                    "json"
+                );
+    
+                return new JsonResponse(
+                    $errorsJson,
+                    400,
+                    [],
+                    true
+                );
+            }
 
             $manager->persist($phoneEntity);
             $manager->flush();
@@ -159,7 +177,7 @@ class PhoneController extends AbstractController
      * @param Request $request
      * @return void
      */
-    public function putPhone(Phone $phoneEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request)
+    public function putPhone(Phone $phoneEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, ValidatorInterface $validator)
     {
         if($this->isGranted("ROLE_ADMIN"))
         {
@@ -173,6 +191,23 @@ class PhoneController extends AbstractController
                     'object_to_populate' => $phoneEntity
                 ]
             );
+
+            $errorsEntities = $validator->validate($phoneEntity);
+    
+            if (count($errorsEntities))
+            {
+                $errorsJson = $serializer->serialize(
+                    $errorsEntities,
+                    "json"
+                );
+    
+                return new JsonResponse(
+                    $errorsJson,
+                    400,
+                    [],
+                    true
+                );
+            }
 
             $manager->persist($phoneEntity);
             $manager->flush();

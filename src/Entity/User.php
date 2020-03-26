@@ -49,7 +49,7 @@ class User implements UserInterface
     private $lastname;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
+     * @ORM\Column(type="string", length=255, nullable=false, unique=true)
      * @Assert\NotBlank()
      * @Assert\Email(
      *      message="{{ value }} n'est pas un email valide."

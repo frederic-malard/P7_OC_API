@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -142,7 +143,7 @@ class CustomerController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return void
      */
-    public function postCustomer(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder)
+    public function postCustomer(SerializerInterface $serializer, Request $request, EntityManagerInterface $manager, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
     {
         if($this->isGranted("ROLE_ADMIN"))
         {
@@ -160,6 +161,23 @@ class CustomerController extends AbstractController
                     $customerEntity->getPassword()
                 ))
             ;
+
+            $errorsEntities = $validator->validate($customerEntity);
+    
+            if (count($errorsEntities))
+            {
+                $errorsJson = $serializer->serialize(
+                    $errorsEntities,
+                    "json"
+                );
+    
+                return new JsonResponse(
+                    $errorsJson,
+                    400,
+                    [],
+                    true
+                );
+            }
 
             $manager->persist($customerEntity);
             $manager->flush();
@@ -213,7 +231,7 @@ class CustomerController extends AbstractController
      * @param Request $request
      * @return void
      */
-    public function putCustomer(Customer $customerEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder)
+    public function putCustomer(Customer $customerEntity, EntityManagerInterface $manager, SerializerInterface $serializer, Request $request, UserPasswordEncoderInterface $encoder, ValidatorInterface $validator)
     {
         if($this->isGranted("ROLE_ADMIN"))
         {
@@ -241,6 +259,23 @@ class CustomerController extends AbstractController
                         $customerEntity->getPassword()
                     ))
                 ;
+            }
+
+            $errorsEntities = $validator->validate($customerEntity);
+    
+            if (count($errorsEntities))
+            {
+                $errorsJson = $serializer->serialize(
+                    $errorsEntities,
+                    "json"
+                );
+    
+                return new JsonResponse(
+                    $errorsJson,
+                    400,
+                    [],
+                    true
+                );
             }
 
             $manager->persist($customerEntity);
