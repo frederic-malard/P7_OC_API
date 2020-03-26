@@ -23,16 +23,28 @@ class UserController extends AbstractController
 {
     /**
      * @Route("/api/users", name="get_all_users", methods={"GET"})
+     * @Route("/api/users/page/{page<\d+>?1}", name="get_all_users_per_page", methods={"GET"})
      * @param UserRepository $repo
      * @param SerializerInterface $serializer
      * @return void
      */
-    public function getAllUsers(UserRepository $repo, SerializerInterface $serializer)
+    public function getAllUsers(UserRepository $repo, SerializerInterface $serializer, $page = 1)
     {
-        $usersEntity = $repo->findByCustomer($this->getUser());
+        if (is_null($page) || $page < 1)
+            $page = 1;
+
+        $usersEntities = $repo->findByCustomer($this->getUser());
+
+        $nbUsers = count($usersEntities);
+
+        if (($page-1)*$_ENV["LIMIT_PAGE"] > $nbUsers)
+            $page = ceil(($nbUsers)/$_ENV["LIMIT_PAGE"]);
+
+        if ($nbUsers > $_ENV["LIMIT_PAGE"])
+            $usersEntities = array_slice($usersEntities, ($page-1)*$_ENV["LIMIT_PAGE"], min($_ENV["LIMIT_PAGE"], $nbUsers-($page-1)*$_ENV["LIMIT_PAGE"]));
 
         $usersArray = $serializer->normalize(
-            $usersEntity,
+            $usersEntities,
             null,
             [
                 "groups" => ["getAllUsers"]
@@ -87,11 +99,21 @@ class UserController extends AbstractController
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Cet utilisateur n'est pas un de vos clients !"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                [
-                    "erreur" => "Cet utilisateur n'est pas un de vos clients."
-                ],
-                400
+                $responseJson,
+                403,
+                [],
+                true
             );
         }
     }
@@ -128,7 +150,7 @@ class UserController extends AbstractController
         $manager->persist($userEntity);
         $manager->flush();
 
-        $responseArray = ["link" => "/api/users/" . $userEntity->getId()];
+        $responseArray = ["lien" => "/api/users/" . $userEntity->getId()];
 
         $responseJson = $serializer->encode(
             $responseArray,
@@ -185,7 +207,7 @@ class UserController extends AbstractController
         $manager->persist($userEntity);
         $manager->flush();
 
-        $responseArray = ["link" => "/api/users/" . $userEntity->getId()];
+        $responseArray = ["lien" => "/api/users/" . $userEntity->getId()];
 
         $responseJson = $serializer->encode(
             $responseArray,
@@ -194,7 +216,9 @@ class UserController extends AbstractController
 
         return new JsonResponse(
             $responseJson,
-            200
+            200,
+            [],
+            true
         );
     }
 
@@ -208,23 +232,47 @@ class UserController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return void
      */
-    public function deleteUser(User $userEntity, EntityManagerInterface $manager)
+    public function deleteUser(User $userEntity, EntityManagerInterface $manager, SerializerInterface $serializer)
     {
         if ($userEntity->getCustomer() == $this->getUser())
         {
             $manager->remove($userEntity);
             $manager->flush();
 
+            $responseArray = [
+                "code" => "200",
+                "message" => "Utilisateur supprimé."
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "utilisateur supprimé.",
-                200
+                $responseJson,
+                200,
+                [],
+                true
             );
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Le client que vous essayez de supprimer n'est pas l'un des votres"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Le client que vous essayez de supprimer n'est pas un des votres.",
-                400
+                $responseJson,
+                403,
+                [],
+                true
             );
         }
     }

@@ -62,9 +62,19 @@ class CustomerController extends AbstractController
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
@@ -102,9 +112,19 @@ class CustomerController extends AbstractController
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
@@ -144,7 +164,7 @@ class CustomerController extends AbstractController
             $manager->persist($customerEntity);
             $manager->flush();
 
-            $responseArray = ["link" => "/api/customers/" . $customerEntity->getId()];
+            $responseArray = ["lien" => "/api/customers/" . $customerEntity->getId()];
 
             $responseJson = $serializer->encode(
                 $responseArray,
@@ -162,9 +182,19 @@ class CustomerController extends AbstractController
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
@@ -216,7 +246,7 @@ class CustomerController extends AbstractController
             $manager->persist($customerEntity);
             $manager->flush();
 
-            $responseArray = ["link" => "/api/customers/" . $customerEntity->getId()];
+            $responseArray = ["lien" => "/api/customers/" . $customerEntity->getId()];
 
             $responseJson = $serializer->encode(
                 $responseArray,
@@ -225,14 +255,26 @@ class CustomerController extends AbstractController
 
             return new JsonResponse(
                 $responseJson,
-                200
+                200,
+                [],
+                true
             );
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
@@ -249,15 +291,27 @@ class CustomerController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return void
      */
-    public function deleteCustomer(Customer $customerEntity, EntityManagerInterface $manager)
+    public function deleteCustomer(Customer $customerEntity, EntityManagerInterface $manager, SerializerInterface $serializer)
     {
         if($this->isGranted("ROLE_ADMIN"))
         {
             if (count($customerEntity->getRoles()) > 1 && $customerEntity->getRoles()[1] == "ROLE_ADMIN")
             {
+                $responseArray = [
+                    "code" => "403",
+                    "message" => "Il s'agit d'un compte admin. Vous ne pouvez pas le supprimer."
+                ];
+    
+                $responseJson = $serializer->encode(
+                    $responseArray,
+                    "json"
+                );
+    
                 return new JsonResponse(
-                    "Il s'agit d'un compte admin. Vous ne pouvez pas le supprimer.",
-                    400
+                    $responseJson,
+                    400,
+                    [],
+                    true
                 );
             }
             else
@@ -265,17 +319,39 @@ class CustomerController extends AbstractController
                 $manager->remove($customerEntity);
                 $manager->flush();
         
+                $responseArray = [
+                    "code" => "200",
+                    "message" => "Client supprimé."
+                ];
+    
+                $responseJson = $serializer->encode(
+                    $responseArray,
+                    "json"
+                );
+    
                 return new JsonResponse(
-                    "client supprimé.",
-                    200
+                    $responseJson,
+                    200,
+                    [],
+                    true
                 );
             }
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );

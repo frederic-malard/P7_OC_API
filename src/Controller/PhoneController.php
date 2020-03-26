@@ -110,7 +110,7 @@ class PhoneController extends AbstractController
             $manager->persist($phoneEntity);
             $manager->flush();
 
-            $responseArray = ["link" => "/api/phones/" . $phoneEntity->getId()];
+            $responseArray = ["lien" => "/api/phones/" . $phoneEntity->getId()];
 
             $responseJson = $serializer->encode(
                 $responseArray,
@@ -128,9 +128,19 @@ class PhoneController extends AbstractController
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
@@ -167,7 +177,7 @@ class PhoneController extends AbstractController
             $manager->persist($phoneEntity);
             $manager->flush();
 
-            $responseArray = ["link" => "/api/phones/" . $phoneEntity->getId()];
+            $responseArray = ["lien" => "/api/phones/" . $phoneEntity->getId()];
 
             $responseJson = $serializer->encode(
                 $responseArray,
@@ -176,14 +186,26 @@ class PhoneController extends AbstractController
 
             return new JsonResponse(
                 $responseJson,
-                200
+                200,
+                [],
+                true
             );
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
@@ -200,23 +222,45 @@ class PhoneController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return void
      */
-    public function deletePhone(Phone $phoneEntity, EntityManagerInterface $manager)
+    public function deletePhone(Phone $phoneEntity, EntityManagerInterface $manager, SerializerInterface $serializer)
     {
         if($this->isGranted("ROLE_ADMIN"))
         {
             $manager->remove($phoneEntity);
             $manager->flush();
 
+            $responseArray = [
+                "code" => "200",
+                "message" => "Téléphone supprimé"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "téléphone supprimé.",
-                200
+                $responseJson,
+                200,
+                [],
+                true
             );
         }
         else
         {
+            $responseArray = [
+                "code" => "403",
+                "message" => "Vous devez être admin pour envoyer cette requête"
+            ];
+
+            $responseJson = $serializer->encode(
+                $responseArray,
+                "json"
+            );
+
             return new JsonResponse(
-                "Vous devez être admin pour envoyer cette requête",
-                200,
+                $responseJson,
+                403,
                 [],
                 true
             );
