@@ -56,6 +56,25 @@ class UserController extends AbstractController
             $usersArray[$i]["link"] = "/api/users/" . $usersArray[$i]["id"];
         }
 
+        $pages = [];
+
+        if ($page * $_ENV["LIMIT_PAGE"] <= $nbUsers)
+        {
+            if ($page + 1 < ($nbUsers + 1) / $_ENV["LIMIT_PAGE"])
+                $pages["derniere_page"] = "/api/users/page/" . (floor($nbUsers / 5) + 1);
+                $pages["page_suivante"] = "/api/users/page/" . ($page + 1);
+            }
+            
+        if (($page - 1) * $_ENV["LIMIT_PAGE"] > 0)
+        {
+            if ($page - 1 > 1)
+                $pages["premiere_page"] = "/api/users/page/" . 1;
+            $pages["page_precedente"] = "/api/users/page/" . ($page - 1);
+        }
+
+        if (count($pages) > 0)
+            $usersArray[] = $pages;
+
         $usersJson = $serializer->encode(
             $usersArray,
             "json"
