@@ -14,7 +14,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
         $responseArray = [
             "code" => $exception->getStatusCode(),
-            "message" => "ressource introuvable"
+            "message" => $exception->getMessage() // modifier
         ];
 
         $responseJson = new JsonResponse(

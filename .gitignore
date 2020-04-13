@@ -9,6 +9,10 @@
 /public/bundles/
 /var/
 /vendor/
+todo.odt
+/todo.odt
+.~lock.todo.odt#
+/.~lock.todo.odt#
 ###< symfony/framework-bundle ###
 
 ###> symfony/phpunit-bridge ###
