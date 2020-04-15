@@ -73,11 +73,6 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      * @Assert\NotBlank()
-     * @Groups({
-     *      "getAllUsers",
-     *      "getOneUser",
-     *      "userSwg"
-     * })
      */
     private $password;
 

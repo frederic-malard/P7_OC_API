@@ -293,7 +293,7 @@ class UserController extends AbstractController
             $manager->flush();
 
             $responseArray = [
-                "code" => "200",
+                "code" => "204",
                 "message" => "Utilisateur supprimé."
             ];
 
@@ -304,7 +304,7 @@ class UserController extends AbstractController
 
             return new JsonResponse(
                 $responseJson,
-                200,
+                204,
                 [],
                 true
             );

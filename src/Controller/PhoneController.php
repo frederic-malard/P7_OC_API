@@ -265,7 +265,7 @@ class PhoneController extends AbstractController
             $manager->flush();
 
             $responseArray = [
-                "code" => "200",
+                "code" => "204",
                 "message" => "Téléphone supprimé"
             ];
 
@@ -276,7 +276,7 @@ class PhoneController extends AbstractController
 
             return new JsonResponse(
                 $responseJson,
-                200,
+                204,
                 [],
                 true
             );

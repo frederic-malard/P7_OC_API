@@ -37,23 +37,6 @@ class CustomerController extends AbstractController
                 ]
             );
     
-            // $customersArray = $serializer->normalize(
-            //     $customersEntity,
-            //     null,
-            //     [
-            //         "groups" => ["getAllCustomers"]
-            //     ]
-            // );
-    
-            // for ($i = 0 ; $i < count($customersArray) ; $i++) {
-            //     $customersArray[$i]["link"] = "/api/customers/" . $customersArray[$i]["id"];
-            // }
-    
-            // $customersJson = $serializer->encode(
-            //     $customersArray,
-            //     "json"
-            // );
-    
             return new JsonResponse(
                 $customersJson,
                 200,
@@ -355,7 +338,7 @@ class CustomerController extends AbstractController
                 $manager->flush();
         
                 $responseArray = [
-                    "code" => "200",
+                    "code" => "204",
                     "message" => "Client supprimé."
                 ];
     
@@ -366,7 +349,7 @@ class CustomerController extends AbstractController
     
                 return new JsonResponse(
                     $responseJson,
-                    200,
+                    204,
                     [],
                     true
                 );
