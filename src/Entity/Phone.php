@@ -173,16 +173,7 @@ class Phone
      *      "getOnePhone"
      * })
      */
-    private $description;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({
-     *      "getOnePhone"
-     * })
-     */
-    private $color;
-
+    private $comments;
 
     /**
      * @ORM\PrePersist
@@ -383,28 +374,14 @@ class Phone
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getComments(): ?string
     {
-        return $this->description;
+        return $this->comments;
     }
 
-    public function setDescription(?string $description): self
+    public function setComments(?string $comments): self
     {
-        $this->description = $description;
-
-        return $this;
-    }
-
-
-
-    public function getColor(): ?string
-    {
-        return $this->color;
-    }
-
-    public function setColor(?string $color): self
-    {
-        $this->color = $color;
+        $this->comments = $comments;
 
         return $this;
     }
