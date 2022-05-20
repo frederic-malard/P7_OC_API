@@ -1,10 +1,6 @@
 # projet pour openclassrooms.com
 API restful, niveau 3 sur le modèle de richardson, créée avec API Platform et Symfony 4
 
-## SITE EN LIGNE
-
-le site web est en ligne, à l'adresse https://api.frederic-malard.com
-
 ## INSTALLATION
 
 ### cloner le projet
